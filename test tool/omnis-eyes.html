@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Omnis-eyes · Profile Explorer</title>
+
+  <link rel="stylesheet" href="stylesheet.css">
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+<main>
+  <div class="top">
+    <div class="brand">OMNIS<span>EYES</span></div>
+    <small>LOCAL AUDIT WORKSPACE</small>
+  </div>
+
+  <header>
+    <div class="eyebrow">PUBLIC PROFILE EXPLORER</div>
+
+    <h1>Your footprint. <span>A clearer view.</span></h1>
+
+    <p>
+      Organize your identifiers, explore profile links,
+      and review your imported posts.
+    </p>
+  </header>
+
+  <form class="panel" id="audit">
+    <div class="section-title">
+      <h2>Start a footprint audit</h2>
+      <span class="tag">NEW AUDIT</span>
+    </div>
+
+    <div class="fields">
+      <div>
+        <label for="full-name">
+          Full name <small>optional</small>
+        </label>
+
+        <input
+          id="full-name"
+          type="text"
+          placeholder="e.g. Alex Morgan"
+          maxlength="150"
+          autocomplete="off"
+        >
+
+        <p class="hint">
+          Report detail only · not an identity search
+        </p>
+      </div>
+
+      <div>
+        <label for="username">
+          Known usernames <small>one or more</small>
+        </label>
+
+        <textarea
+          id="username"
+          rows="2"
+          placeholder="e.g. alexm, alex.creates"
+          required
+          autocomplete="off"
+          spellcheck="false"
+        ></textarea>
+
+        <p class="hint">
+          Around 10 if available. Any number is fine—even one.
+          Separate usernames with commas or new lines.
+        </p>
+      </div>
+
+      <div>
+        <label for="emails">
+          Email addresses <small>optional</small>
+        </label>
+
+        <input
+          id="emails"
+          type="text"
+          placeholder="e.g. alex@example.com"
+          maxlength="1000"
+          autocomplete="off"
+        >
+
+        <p class="hint">
+          Report details only · separate addresses with commas
+        </p>
+      </div>
+
+      <div>
+        <label for="phone">
+          Phone number <small>optional</small>
+        </label>
+
+        <input
+          id="phone"
+          type="tel"
+          placeholder="e.g. +1 202 555 0123"
+          maxlength="50"
+          autocomplete="off"
+        >
+
+        <p class="hint">
+          Report detail only · no linked-account lookup
+        </p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>DATE RANGE</h3>
+
+      <div class="date-grid">
+        <div>
+          <label for="from">From</label>
+          <input id="from" type="date">
+        </div>
+
+        <div>
+          <label for="to">To</label>
+          <input id="to" type="date">
+        </div>
+
+        <div class="date-note">
+          Filters imported posts only.<br>
+          Both dates are included.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>
+        POST / COMMENT ARCHIVE
+        <span class="tag">OPTIONAL</span>
+      </h3>
+
+      <div class="import-row">
+        <input
+          id="import"
+          type="file"
+          accept=".json,application/json"
+          aria-label="Import a post or comment archive"
+        >
+
+        <span class="hint">
+          Import your JSON archive to search and filter its text.<br>
+          Nothing is uploaded to a server.
+        </span>
+      </div>
+
+      <details class="import-help">
+        <summary>See the expected JSON format</summary>
+        <pre>[
+  {
+    "text": "My public comment",
+    "timestamp": "2025-06-15T12:30:00Z",
+    "platform": "Reddit",
+    "url": "https://www.reddit.com/"
+  }
+]</pre>
+        <p class="hint">
+          Only text is required. Dates must use ISO 8601.
+          Maximum import: 2 MB and 5,000 entries.
+        </p>
+      </details>
+    </div>
+
+    <label class="scope">
+      <input type="checkbox" id="consent" required>
+
+      <span>
+        This is my own footprint or I have permission
+        to conduct this audit.
+      </span>
+    </label>
+
+    <div class="actions">
+      <small>
+        Local processing · Public links · No installation
+      </small>
+
+      <button type="submit" id="generate">
+        Generate audit →
+      </button>
+    </div>
+
+    <p id="error" role="alert"></p>
+  </form>
+
+  <p class="notice">
+    Names, emails, and phone numbers are report details,
+    not search inputs. Profile links are unverified.
+    Matching usernames do not establish identity.
+    This tool does not automatically retrieve comments.
+  </p>
+
+  <div id="summary" hidden></div>
+
+  <div class="toolbar">
+    <span id="count" role="status">Ready when you are.</span>
+
+    <label for="filter">
+      Platform
+
+      <select id="filter">
+        <option value="">All platforms</option>
+      </select>
+    </label>
+
+    <button type="button" id="export" disabled>
+      Export JSON
+    </button>
+
+    <button type="button" id="print" disabled>
+      Print / PDF
+    </button>
+  </div>
+
+  <section id="profile-panel" hidden>
+    <div class="result-heading">
+      <h2>Profile links</h2>
+      <span class="tag">UNVERIFIED</span>
+    </div>
+
+    <div id="results" class="results"></div>
+  </section>
+
+  <section id="comment-panel" class="panel posts" hidden>
+    <h2>Comments &amp; platform profiles</h2>
+
+    <p class="description">
+      Reddit opens public comment history.
+      Other platforms open profiles because an equivalent
+      comment-history link is not available here.
+      Platforms may require sign-in or restrict access.
+    </p>
+
+    <div id="comment-links" class="results"></div>
+  </section>
+
+  <section id="post-panel" class="panel posts" hidden>
+    <h2>Imported posts &amp; comments</h2>
+
+    <label for="post-search">Search imported text</label>
+
+    <input
+      id="post-search"
+      type="search"
+      placeholder="Search your imported posts or comments…"
+    >
+
+    <p class="hint">
+      Dates use the calendar date written in each timestamp.
+      Undated entries are excluded when a date filter is set.
+    </p>
+
+    <div id="posts"></div>
+  </section>
+
+  <footer>
+    OMNIS-EYES · SELF-AUDITS &amp; AUTHORIZED RESEARCH<br>
+    Only opening an external link contacts that platform.
+    Exported reports include entered personal details.
+  </footer>
+</main>
+</body>
+</html>
